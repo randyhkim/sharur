@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+from logging import exception
 import os
 import time
 import discord
@@ -32,8 +33,11 @@ async def join(ctx):
 
 @bot.command()
 async def leave(ctx):
-    print('it probably works2')
-    await ctx.voice_client.disconnect()
+    if(ctx.voice_client):
+        print('it probably works2')
+        await ctx.voice_client.disconnect()
+    else:
+        await ctx.send("I am not in a voice channel!")
 
 
 @bot.command()
@@ -65,7 +69,12 @@ async def add_birthday(ctx):
         reminder_message = str(reminder_message_response.content)
 
         reminder_handler.insert_birthday(reminder_handler.pool, id, name, birthday, int_reminded_people, reminder_message)
-        await ctx.channel.send("Birthday successfully added!")
+
+        msg = discord.Embed(
+            title="Addition Successful",
+            description=f"Successfully added {name}'s birthday."
+        )
+        await ctx.send(embed=msg)
 
     except asyncio.TimeoutError:
         await ctx.send("You didn't reply in time!")
@@ -85,7 +94,12 @@ async def remove_birthday(ctx):
         response = await bot.wait_for("message", check=check, timeout=30) # 30 seconds to reply
         name = str(response.content)
         reminder_handler.delete_birthday(reminder_handler.pool, name)
-        await ctx.channel.send(f'Successfully removed {name}\'s birthday.')
+
+        msg = discord.Embed(
+            title="Removal Successful",
+            description=f"Successfully removed {name}'s birthday."
+        )
+        await ctx.send(embed=msg)
     except asyncio.TimeoutError:
         await ctx.send("You didn't reply in time!")
     except TypeError:
@@ -100,7 +114,7 @@ async def fetch_birthdays(ctx):
         await ctx.send("Internal server error.")
 
 
-@bot.command()
+@bot.command(name='birthdays_today', description='Birthdays today')
 async def birthdays_today(ctx):
     try:
         today = datetime.datetime.now()
@@ -113,11 +127,39 @@ async def birthdays_today(ctx):
         for row in rows:    # row is in form of tuple
             birthdays.append(f'Happy birthday {row[1]}! Your friends say: {row[4]}')
 
+        # TODO: add functionality to change tag
+        await ctx.send(content="@everyone")
+
         for birthday in birthdays:
-            await ctx.send(birthday)
+            birthday_embed = discord.Embed(
+                color=0x1b5656,
+                title="Happy Birthday!",
+                description=birthday,
+            )
+            await ctx.send(embed=birthday_embed)
 
     except:
         await ctx.send("Internal server error.")
+
+
+# @bot.event
+# async def on_ready():
+#     try:
+#         today = datetime.datetime.now()
+#         mm = str(today.month)
+#         dd = str(today.day)
+#         rows = reminder_handler.get_birthdays_at_date(reminder_handler.pool, mm, dd)
+
+#         birthdays = []
+
+#         for row in rows:    # row is in form of tuple
+#             birthdays.append(f'Happy birthday {row[1]}! Your friends say: {row[4]}')
+
+#         for birthday in birthdays:
+#             await ctx.send(birthday)
+
+#     except:
+#         await ctx.send("Internal server error.")
 
 
 # async def called_once_a_day():
