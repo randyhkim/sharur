@@ -14,7 +14,8 @@ https://user-images.githubusercontent.com/63735714/197359135-2d7c5e50-cb08-4c47-
 `$ping` is a command that returns a message saying "pong" as a demonstration purpose for development.
 
 ### $add_birthday
-https://user-images.githubusercontent.com/63735714/197359131-58e6573d-21b0-42df-990d-fceaca280f9b.mov
+https://user-images.githubusercontent.com/63735714/197359620-6307a4c0-38b9-4797-920f-4c449d8657ff.mov
+
 
 `$add_birthday` allows user to interactively add an entry to the birthday database. If any of the inputs are invalid, the bot will return an "Internal server error." response. If the user fails to respond within 30 seconds since the last prompt, the interaction is aborted.
 When successful, a rich, embedded Discord message highlights that the addition was successful.
