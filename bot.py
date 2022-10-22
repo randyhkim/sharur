@@ -18,15 +18,23 @@ async def on_ready():
 
 @bot.command()
 async def join(ctx):
-    channel = ctx.author.voice.channel
-    print('it probably works')
-    await channel.connect()
+    if(ctx.author.voice):
+        channel = ctx.author.voice.channel
+        print('it probably works')
+        await channel.connect()
+    else:
+        await ctx.send("You're not in a voice channel!")
 
 
 @bot.command()
 async def leave(ctx):
-    print('it probably works2')
-    await ctx.voice_client.disconnect()
+    if(ctx.voice_client):
+        print('it probably works2')
+        await ctx.voice_client.disconnect()
+    else:
+        await ctx.send("I am not in a voice channel!")
+
+
 
 
 @bot.command()
