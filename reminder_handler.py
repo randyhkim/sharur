@@ -1,3 +1,4 @@
+from datetime import datetime
 from dotenv import load_dotenv
 from google.cloud.sql.connector import Connector, IPTypes
 import sqlalchemy
@@ -54,7 +55,7 @@ def delete_birthday(pool, name: str):
 
 
 # get all birthdays
-def fetch_birthdays(pool):
+def get_all_birthdays(pool):
     with pool.connect() as db_conn:
         stmt = sqlalchemy.text(
             f'SELECT * FROM birthday_test.reminder'
@@ -62,8 +63,17 @@ def fetch_birthdays(pool):
         return str(db_conn.execute(stmt).all())
 
 
+# get rows with given birthday
+def get_birthdays_at_date(pool, month: str, day: str):
+    with pool.connect() as db_conn:
+        stmt = sqlalchemy.text(
+            f'SELECT * FROM birthday_test.reminder WHERE MONTH(Birthday)={month} AND DAY(Birthday)={day}'
+        )
+        return db_conn.execute(stmt).all()
+
+
 # TODO: remove
 if __name__ == "__main__":
     # insert_birthday(pool, 1, "Randy Kim", "19971118", 1, "Happy Birthday!")
     # delete_birthday(pool, 1)
-    print(fetch_birthdays(pool))
+    print(get_all_birthdays(pool))
