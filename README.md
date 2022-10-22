@@ -8,6 +8,13 @@ https://user-images.githubusercontent.com/63735714/197359114-48737b9b-537b-473f-
 
 `$join` commands the Sharur bot to join the channel the user is at. If the user is in no channel, the bot declines, saying "I am not in a voice channel!" `$leave` commands the bot to leave the channel.
 
+
+### $play
+https://user-images.githubusercontent.com/63735714/197361733-b1885863-2421-4465-9cec-deafd9eac78e.mov
+
+`$play` allows user to input a Youtube video link and the Discord bot will automatically join the voice channel and play the audio of that Youtube video. If you call `$play` again, the music being played will be aborted and the audio of the new Youtube video will be played immediately.
+
+
 ### $ping
 https://user-images.githubusercontent.com/63735714/197359135-2d7c5e50-cb08-4c47-816c-7a65a070d890.mov
 
