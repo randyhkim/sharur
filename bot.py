@@ -1,7 +1,12 @@
+import asyncio
 import os
+import time
 import discord
 from dotenv import load_dotenv
 from discord.ext import commands
+
+import reminder_handler
+
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -33,6 +38,64 @@ async def leave(ctx):
 async def ping(ctx):
     print('it has to work!')
     await ctx.channel.send("pong")
+
+
+@bot.command()
+async def add_birthday(ctx):
+    try:
+        # TODO: change ID
+        id = time.time()
+
+        await ctx.channel.send("Whose birthday is this?")
+        name_response = await bot.wait_for('message', timeout=30) # 30 seconds to reply
+        name = str(name_response.content)
+        
+        await ctx.channel.send("When is the birthday (ex. 19971118)?")
+        birthday_response = await bot.wait_for('message', timeout=30) # 30 seconds to reply
+        birthday = str(birthday_response.content)
+
+        # TODO: add reminded_people
+        # int_reminded_people = int(reminded_people)
+        int_reminded_people = 0
+
+        await ctx.channel.send("Add a celebration message!")
+        reminder_message_response = await bot.wait_for('message', timeout=30) # 30 seconds to reply
+        reminder_message = str(reminder_message_response.content)
+
+        reminder_handler.insert_birthday(reminder_handler.pool, id, name, birthday, int_reminded_people, reminder_message)
+        await ctx.channel.send("Birthday successfully added!")
+
+    except asyncio.TimeoutError:
+        await ctx.send("You didn't reply in time!")
+    except:
+        await ctx.send(f'Internal server error.')
+
+
+@bot.command()
+async def remove_birthday(ctx):
+
+    def check(response):
+        # TODO: check if name exists in database instead
+        return response
+
+    try:
+        await ctx.channel.send("Whose birthday do you want to remove?")
+        response = await bot.wait_for("message", check=check, timeout=30) # 30 seconds to reply
+        name = str(response.content)
+        reminder_handler.delete_birthday(reminder_handler.pool, name)
+        await ctx.channel.send(f'Successfully removed {name}\'s birthday.')
+    except asyncio.TimeoutError:
+        await ctx.send("You didn't reply in time!")
+    except TypeError:
+        await ctx.send("That user's birthday doesn't exist!")
+
+
+@bot.command()
+async def fetch_birthdays(ctx):
+    try:
+        await ctx.channel.send(reminder_handler.fetch_birthdays(reminder_handler.pool))
+    except:
+        await ctx.send("Internal server error.")
 
 
 bot.run(TOKEN)
