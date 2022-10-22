@@ -1,4 +1,5 @@
 import asyncio
+import datetime
 import os
 import time
 import discord
@@ -10,6 +11,7 @@ import reminder_handler
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+WHEN = datetime.time(0, 0, 0)    # 12:00 AM
 
 
 bot = commands.Bot(command_prefix='$', intents=discord.Intents.all())
@@ -101,9 +103,53 @@ async def remove_birthday(ctx):
 @bot.command()
 async def fetch_birthdays(ctx):
     try:
-        await ctx.channel.send(reminder_handler.fetch_birthdays(reminder_handler.pool))
+        await ctx.channel.send(reminder_handler.get_all_birthdays(reminder_handler.pool))
     except:
         await ctx.send("Internal server error.")
 
 
+@bot.command()
+async def birthdays_today(ctx):
+    try:
+        today = datetime.datetime.now()
+        mm = str(today.month)
+        dd = str(today.day)
+        rows = reminder_handler.get_birthdays_at_date(reminder_handler.pool, mm, dd)
+
+        birthdays = []
+
+        for row in rows:    # row is in form of tuple
+            birthdays.append(f'Happy birthday {row[1]}! Your friends say: {row[4]}')
+
+        for birthday in birthdays:
+            await ctx.send(birthday)
+
+    except:
+        await ctx.send("Internal server error.")
+
+
+# async def called_once_a_day():
+#     await bot.wait_until_ready()  # Make sure your guild cache is ready so the channel can be found via get_channel
+#     channel = bot.get_channel(1)    # TODO: change arbitrary channel_id
+#     await channel.send("your message here")
+
+
+# async def background_task():
+#     now = datetime.utcnow()
+#     if now.time() > WHEN:  # Make sure loop doesn't start after {WHEN} as then it will send immediately the first time as negative seconds will make the sleep yield instantly
+#         tomorrow = datetime.combine(now.date() + datetime.timedelta(days=1), time(0))
+#         seconds = (tomorrow - now).total_seconds()  # Seconds until tomorrow (midnight)
+#         await asyncio.sleep(seconds)   # Sleep until tomorrow and then the loop will start 
+#     while True:
+#         now = datetime.utcnow() # You can do now() or a specific timezone if that matters, but I'll leave it with utcnow
+#         target_time = datetime.combine(now.date(), WHEN)  # 6:00 PM today (In UTC)
+#         seconds_until_target = (target_time - now).total_seconds()
+#         await asyncio.sleep(seconds_until_target)  # Sleep until we hit the target time
+#         await called_once_a_day()  # Call the helper function that sends the message
+#         tomorrow = datetime.combine(now.date() + datetime.timedelta(days=1), time(0))
+#         seconds = (tomorrow - now).total_seconds()  # Seconds until tomorrow (midnight)
+#         await asyncio.sleep(seconds)   # Sleep until tomorrow and then the loop will start a new iteration
+
+
+# bot.loop.create_task(background_task())
 bot.run(TOKEN)
