@@ -1,6 +1,5 @@
 import asyncio
 import datetime
-from logging import exception
 import os
 import time
 import discord
@@ -109,6 +108,7 @@ async def remove_birthday(ctx):
         await ctx.send("That user's birthday doesn't exist!")
 
 
+# TODO: remove
 @bot.command()
 async def fetch_birthdays(ctx):
     try:
