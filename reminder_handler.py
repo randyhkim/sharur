@@ -1,3 +1,4 @@
+from datetime import datetime
 from dotenv import load_dotenv
 from google.cloud.sql.connector import Connector, IPTypes
 import sqlalchemy
@@ -35,7 +36,7 @@ pool = sqlalchemy.create_engine(
 
 # insert entry to birthday
 # TODO: birthday type to DateTime
-def insert_birthday(pool, id: int, name=str, birthday=str, reminded_people=int, reminder_message=str):
+def insert_birthday(pool, id: int, name: str, birthday: str, reminded_people: int, reminder_message: str):
     with pool.connect() as db_conn:
         insert_stmt = sqlalchemy.text(
             f'INSERT INTO reminder (ID, Name, Birthday, RemindedPeople, ReminderMessage) VALUES \
@@ -45,15 +46,34 @@ def insert_birthday(pool, id: int, name=str, birthday=str, reminded_people=int, 
 
 
 # delete entry with user_id
-def delete_birthday(pool, id: int):
+def delete_birthday(pool, name: str):
     with pool.connect() as db_conn:
-        insert_stmt = sqlalchemy.text(
-            f'DELETE FROM reminder WHERE id={id}'
+        delete_stmt = sqlalchemy.text(
+            f'DELETE FROM reminder WHERE Name="{name}"'
         )
-        db_conn.execute(insert_stmt)
+        db_conn.execute(delete_stmt)
+
+
+# get all birthdays
+def get_all_birthdays(pool):
+    with pool.connect() as db_conn:
+        stmt = sqlalchemy.text(
+            f'SELECT * FROM birthday_test.reminder'
+        )
+        return str(db_conn.execute(stmt).all())
+
+
+# get rows with given birthday
+def get_birthdays_at_date(pool, month: str, day: str):
+    with pool.connect() as db_conn:
+        stmt = sqlalchemy.text(
+            f'SELECT * FROM birthday_test.reminder WHERE MONTH(Birthday)={month} AND DAY(Birthday)={day}'
+        )
+        return db_conn.execute(stmt).all()
 
 
 # TODO: remove
 if __name__ == "__main__":
-    insert_birthday(pool, 1, "Randy Kim", "19971118", 1, "Happy Birthday!")
+    # insert_birthday(pool, 1, "Randy Kim", "19971118", 1, "Happy Birthday!")
     # delete_birthday(pool, 1)
+    print(get_all_birthdays(pool))
